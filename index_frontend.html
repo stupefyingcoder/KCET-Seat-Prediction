@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KCET College Predictor</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #3f37c9;
+            --accent: #4cc9f0;
+            --bg-light: #f8f9fa;
+            --bg-dark: #212529;
+            --text-dark: #212529;
+            --text-light: #f8f9fa;
+            --success: #4dd637;
+            --danger: #ef476f;
+            --warning: #ffd166;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --border-radius: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            padding: 0;
+            margin: 0;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 2rem 0 5rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            font-size: 1.2rem;
+            font-weight: 500;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 60%);
+            transform: rotate(30deg);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            margin: -3rem auto 2rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .input-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            background-color: white;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.3);
+        }
+        
+        .input-icon {
+            position: relative;
+        }
+        
+        .input-icon i {
+            position: absolute;
+            top: 50%;
+            right: 1rem;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+        
+        .btn {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-container {
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .loading .spinner {
+            display: inline-block;
+            width: 2.5rem;
+            height: 2.5rem;
+            border: 4px solid rgba(67, 97, 238, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        a:hover {
+        color: #0056b3;
+        text-decoration: underline;
+        transition: all 0.3s ease;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .error {
+            display: none;
+            color: var(--danger);
+            text-align: center;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background-color: rgba(239, 71, 111, 0.1);
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--danger);
+            font-weight: 500;
+        }
+        
+        .results {
+            margin-top: 2rem;
+            display: none;
+        }
+        
+        .results h2 {
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+            padding-bottom: 0.5rem;
+        }
+        
+        .results h2::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            border-radius: 3px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            overflow: hidden;
+        }
+        
+        th, td {
+            padding: 1rem;
+            text-align: left;
+        }
+        
+        th {
+            background-color: rgba(67, 97, 238, 0.1);
+            color: var(--primary-dark);
+            font-weight: 600;
+            position: relative;
+        }
+        
+        tr {
+            border-bottom: 1px solid #eee;
+        }
+        
+        tr:last-child {
+            border-bottom: none;
+        }
+        
+        tr:hover {
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background-color: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+        }
+        
+        .footer {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            padding: 2rem 0;
+            margin-top: 3rem;
+            text-align: center;
+        }
+        
+        .animate-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1.5rem 0 4rem; /* Adjusted for mobile */
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+                padding: 0 1rem;
+            }
+            
+            .card {
+                padding: 1.5rem;
+                margin-top: -2rem;
+            }
+            
+            .input-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>KCET College Predictor</h1>
+            <p>Find the best colleges for your rank, category, and preferred branch</p>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="card animate-in">
+            <div class="input-section">
+                <div class="form-group">
+                    <label for="rank"><i class="fas fa-trophy"></i> KCET Rank</label>
+                    <div class="input-icon">
+                        <input type="number" id="rank" min="1" placeholder="Enter your rank">
+                        <i class="fas fa-sort-numeric-down"></i>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="category"><i class="fas fa-users"></i> Category</label>
+                    <div class="input-icon">
+                        <select id="category">
+                            <option value="GM">General Merit (GM)</option>
+                            <option value="GMK">Rural (GMK)</option>
+                            <option value="GMR">Kannada Medium (GMR)</option>
+                            <option value="1G">Category 1</option>
+                            <option value="1K">Category 1 - Rural</option>
+                            <option value="1R">Category 1 - Kannada Medium</option>
+                            <option value="2AG">Category 2A</option>
+                            <option value="2AK">Category 2A - Rural</option>
+                            <option value="2AR">Category 2A - Kannada Medium</option>
+                            <option value="2BG">Category 2B</option>
+                            <option value="2BK">Category 2B - Rural</option>
+                            <option value="2BR">Category 2B - Kannada Medium</option>
+                            <option value="3AG">Category 3A</option>
+                            <option value="3AK">Category 3A - Rural</option>
+                            <option value="3AR">Category 3A - Kannada Medium</option>
+                            <option value="3BG">Category 3B</option>
+                            <option value="3BK">Category 3B - Rural</option>
+                            <option value="3BR">Category 3B - Kannada Medium</option>
+                            <option value="SCG">SC</option>
+                            <option value="SCK">SC - Rural</option>
+                            <option value="SCR">SC - Kannada Medium</option>
+                            <option value="STG">ST</option>
+                            <option value="STK">ST - Rural</option>
+                            <option value="STR">ST - Kannada Medium</option>
+                        </select>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="branch"><i class="fas fa-code-branch"></i> Branch</label>
+                    <div class="input-icon">
+                        <select id="branch">
+                            <option value="All">All Branches</option>
+                            <option value="Civil">Civil Engineering</option>
+                            <option value="Computer">Computer Science Engineering</option>
+                            <option value="Electronics">Electronics & Communication</option>
+                            <option value="Electrical">Electrical Engineering</option>
+                            <option value="Mechanical">Mechanical Engineering</option>
+                            <option value="Info">Information Science</option>
+                            <option value="Architecture">Architecture</option>
+                            <option value="Textiles">Textiles</option>
+                            <option value="Silk">Silk Technology</option>
+                            <option value="Industrial">Industrial Management</option>
+                        </select>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="btn-container">
+                <button id="predictBtn" class="btn">
+                    <i class="fas fa-search"></i> Predict Colleges
+                </button>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Searching for colleges that match your criteria...</p>
+            </div>
+            
+            <div class="error" id="error">
+                <i class="fas fa-exclamation-circle"></i> Please fill in all fields correctly.
+            </div>
+        </div>
+        
+        <div class="results" id="results">
+            <h2>Predicted Colleges</h2>
+            <div class="table-container">
+                <table id="collegeTable">
+                    <thead>
+                        <tr>
+                            <th>College Code</th>
+                            <th>College Name</th>
+                            <th>Branch</th>
+                            <th>Previous Year Cutoff</th>
+                        </tr>
+                    </thead>
+                    <tbody id="collegeResults">
+                        <!-- Results will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <div class="container">
+            <p>&copy; 2025 KCET College Predictor | Helping students make informed college choices</p>
+        </div>
+    </div>
+
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const predictBtn = document.getElementById('predictBtn');
+            const resultsSection = document.getElementById('results');
+            const loadingSection = document.getElementById('loading');
+            const errorSection = document.getElementById('error');
+            const collegeResults = document.getElementById('collegeResults');
+            
+            // Hide results initially
+            resultsSection.style.display = 'none';
+            
+            predictBtn.addEventListener('click', function() {
+                const rank = document.getElementById('rank').value;
+                const category = document.getElementById('category').value;
+                const branch = document.getElementById('branch').value;
+                
+                // Validate inputs
+                if (!rank || parseInt(rank) <= 0) {
+                    errorSection.innerHTML = '<i class="fas fa-exclamation-circle"></i> Please enter a valid rank.';
+                    errorSection.style.display = 'block';
+                    resultsSection.style.display = 'none';
+                    return;
+                }
+                
+                // Hide error, show loading
+                errorSection.style.display = 'none';
+                loadingSection.style.display = 'block';
+                resultsSection.style.display = 'none';
+                
+                console.log("Sending data:", {
+                    rank: parseInt(rank),
+                    category: category,
+                    branch: branch
+                });
+                
+                // Make API request
+                fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        rank: parseInt(rank),
+                        category: category,
+                        branch: branch
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Server error: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    loadingSection.style.display = 'none';
+                    
+                    if (data.colleges && data.colleges.length > 0) {
+                        // Clear previous results
+                        collegeResults.innerHTML = '';
+                        
+                        // Add new results
+                        data.colleges.slice(0, 15).forEach((college, index) => {
+                            const row = document.createElement('tr');
+                            
+                            // Add a small delay to each row for animation effect
+                            setTimeout(() => {
+                                row.classList.add('animate-in');
+                            }, index * 50);
+                            const collegeQuery = encodeURIComponent(college.name);
+
+                             row.innerHTML = `
+                             <td>${college.code}</td>
+                             <td>
+                               <strong>${college.name}</strong><br>
+                               <a href="https://www.google.com/search?q=${collegeQuery}" target="_blank" style="color: #007bff;">Show info about ${college.name}</a>
+                             </td>
+                             <td>${college.branch}</td>
+                             <td>
+                            <span class="badge">${college.cutoff}</span>
+                            </td>
+                            `;
+
+                            collegeResults.appendChild(row);
+                        });
+                        
+                        // Show results
+                        resultsSection.style.display = 'block';
+                        resultsSection.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        collegeResults.innerHTML = `
+                            <tr>
+                                <td colspan="4" style="text-align: center; padding: 2rem;">
+                                    <i class="fas fa-info-circle" style="font-size: 2rem; color: #aaa; display: block; margin-bottom: 1rem;"></i>
+                                    No colleges found matching your criteria.
+                                </td>
+                            </tr>
+                        `;
+                        resultsSection.style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    loadingSection.style.display = 'none';
+                    errorSection.innerHTML = `<i class="fas fa-exclamation-circle"></i> An error occurred. Please try again. ${error.message}`;
+                    errorSection.style.display = 'block';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

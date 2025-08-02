@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - SeatAlgo</title>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+  <!-- Bootstrap 5 CSS + Toast -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <style>
+    body {
+      background: linear-gradient(to right, #43cea2, #185a9d);
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      width: 400px;
+      margin: 80px auto;
+      padding: 30px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    input, select, button {
+      width: 90%;
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+    h2 { margin-bottom: 20px; }
+  </style>
+
+  <script>
+    // Firebase config
+    var firebaseConfig = {
+      apiKey: "AIzaSyAuLVFjh5JyhJNYXaHS0RT-Ewah0iONBKE",
+      authDomain: "seatalgo-14ad1.firebaseapp.com",
+      projectId: "seatalgo-14ad1",
+      storageBucket: "seatalgo-14ad1.appspot.com",
+      messagingSenderId: "709506219442",
+      appId: "1:709506219442:web:38eaed9525da19e03d78ab"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Login to SeatAlgo</h2>
+
+  <form id="login-form">
+    <input type="email" id="login-email" placeholder="Email" required>
+    <input type="password" id="login-password" placeholder="Password" required>
+    
+    <select id="user-type" required>
+      <option value="">-- Select Role --</option>
+      <option value="user">User</option>
+      <option value="admin">Admin</option>
+    </select>
+
+    <button type="submit">Login</button>
+    <p style="margin-top: 15px;">
+      <a href="#" id="forgot-password-link" style="color: #007bff;">Forgot Password?</a>
+    </p>
+  </form>
+
+  <p style="margin-top: 10px;">Don't have an account? <a href="/register">Register here</a></p>
+</div>
+
+<!-- Toast Notification Container -->
+<div aria-live="polite" aria-atomic="true" style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+  <div class="toast" id="toastBox" role="alert" data-bs-delay="3000">
+    <div class="toast-header">
+      <strong class="me-auto" id="toast-title">Notification</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body" id="toast-body"></div>
+  </div>
+</div>
+
+<script>
+  const loginForm = document.getElementById('login-form');
+
+  function showToast(title, message, isError = false) {
+    document.getElementById('toast-title').innerText = title;
+    document.getElementById('toast-body').innerText = message;
+    const toastEl = document.getElementById('toastBox');
+
+    if (isError) {
+      toastEl.querySelector('.toast-header').classList.add('bg-danger', 'text-white');
+      toastEl.querySelector('.toast-header').classList.remove('bg-success');
+    } else {
+      toastEl.querySelector('.toast-header').classList.add('bg-success', 'text-white');
+      toastEl.querySelector('.toast-header').classList.remove('bg-danger');
+    }
+
+    const toast = new bootstrap.Toast(toastEl);
+    toast.show();
+  }
+
+  loginForm.addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    const userType = document.getElementById('user-type').value;
+
+    if (!userType) {
+      showToast("Warning", "Please select User or Admin!", true);
+      return;
+    }
+
+    firebase.auth().signInWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        showToast("Success", "Login successful! Redirecting...");
+
+        setTimeout(() => {
+          if (userType === "admin" && email === "preethigaddankeri@gmail.com") {
+            window.location.href = "/admin";
+          } else if (userType === "admin") {
+            showToast("Access Denied", "You are not the admin!", true);
+            firebase.auth().signOut();
+          } else {
+            window.location.href = "/";
+          }
+        }, 2000);
+      })
+      .catch((error) => {
+        console.error(error);
+        showToast("Login Failed", error.message, true);
+      });
+  });
+
+  // Forgot Password
+  document.getElementById('forgot-password-link').addEventListener('click', function(event) {
+    event.preventDefault();
+    const email = prompt("Enter your registered email:");
+
+    if (email) {
+      firebase.auth().sendPasswordResetEmail(email)
+        .then(() => {
+          showToast("Email Sent", "Password reset email sent to your inbox.");
+        })
+        .catch((error) => {
+          showToast("Error", error.message, true);
+        });
+    }
+  });
+</script>
+
+</body>
+</html>
